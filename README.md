@@ -58,6 +58,8 @@ Runtime outputs under `./data/`:
 
 ## Docker deploy
 
+The container entrypoint creates `./data/` on start and sets ownership for the bind mount; no manual `chown` is required.
+
 ```bash
 cp .env.example .env
 cp .env.secrets.example .env.secrets
