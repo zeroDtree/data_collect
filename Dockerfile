@@ -1,5 +1,7 @@
 FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS build
 
+ENV UV_LINK_MODE=copy
+
 WORKDIR /app
 
 COPY pyproject.toml uv.lock ./
@@ -7,7 +9,9 @@ RUN uv sync --frozen --no-install-project --no-dev
 
 COPY schema.yaml ./
 COPY src ./src
-RUN uv sync --frozen --no-dev
+RUN uv sync --frozen --no-dev --no-editable
+RUN /app/.venv/bin/python -c "import data_collect; import data_collect.app"
+RUN /app/.venv/bin/data-collect --help >/dev/null
 
 FROM python:3.12-slim-bookworm
 
