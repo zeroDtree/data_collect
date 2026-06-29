@@ -64,6 +64,9 @@ cp .env.secrets.example .env.secrets
 # Edit .env (mode, PUBLIC_HOST, TRAEFIK_*) and .env.secrets (WEBHOOK_TOKEN)
 ./deploy/up.sh
 curl -Ik "https://${PUBLIC_HOST}/health"
+
+./deploy/down.sh            # stop containers, keep ./data/
+./deploy/down.sh --volumes  # also remove named volumes (e.g. standalone ACME)
 ```
 
 ### Traefik modes

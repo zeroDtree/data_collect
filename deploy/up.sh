@@ -19,24 +19,18 @@ set -euo pipefail
 log() { printf '==> %s\n' "$*"; }
 die() { printf 'ERROR: %s\n' "$*" >&2; exit 1; }
 
-usage() {
-  awk '/^# @help-begin$/{f=1; next} /^# @help-end$/{f=0} f' "$0"
-  printf '%s\n' '#' 'Options:' '#'
-  awk '/^# @help-options-begin$/{f=1; next} /^# @help-options-end$/{f=0} f' "$0"
-  exit 0
-}
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck disable=SC1091
+source "${SCRIPT_DIR}/lib.sh"
 
 for arg in "$@"; do
   case "$arg" in
-    -h|--help) usage ;;
+    -h|--help) dc_usage "$0" ;;
     *) die "Unexpected argument: $arg (see --help)" ;;
   esac
 done
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-ENV_FILE="${ROOT}/.env"
-SECRETS_FILE="${ROOT}/.env.secrets"
+dc_root
 
 if [[ ! -f "${ENV_FILE}" ]]; then
   if [[ -f "${ROOT}/.env.example" ]]; then
@@ -47,24 +41,8 @@ if [[ ! -f "${ENV_FILE}" ]]; then
   fi
 fi
 
-if [[ ! -f "${SECRETS_FILE}" ]]; then
-  die "Missing ${SECRETS_FILE} (copy from .env.secrets.example)"
-fi
-
-set -a
-# shellcheck disable=SC1090
-source "${ENV_FILE}"
-# shellcheck disable=SC1090
-source "${SECRETS_FILE}"
-set +a
-
-mode="${DATA_COLLECT_TRAEFIK_MODE:-}"
-case "${mode}" in
-  external|shared|standalone) ;;
-  *)
-    die "DATA_COLLECT_TRAEFIK_MODE must be external, shared, or standalone (got: ${mode:-empty})"
-    ;;
-esac
+dc_load_env
+dc_mode
 
 if [[ -z "${PUBLIC_HOST:-}" ]]; then
   die "PUBLIC_HOST is required in .env"
@@ -89,16 +67,7 @@ case "${mode}" in
     ;;
 esac
 
-OVERLAY="${ROOT}/compose.${mode}.yaml"
-[[ -f "${OVERLAY}" ]] || die "Missing compose overlay: ${OVERLAY}"
-
 log "Traefik mode: ${mode}"
-cd "${ROOT}"
-docker compose \
-  -f compose.yaml \
-  -f "compose.${mode}.yaml" \
-  --env-file "${ENV_FILE}" \
-  --env-file "${SECRETS_FILE}" \
-  up -d --build
+dc_compose up -d --build
 
 log "Done. Verify: curl -Ik https://${PUBLIC_HOST}/health"
