@@ -1,0 +1,13 @@
+services:
+  data-collect:
+    build: .
+    restart: unless-stopped
+    environment:
+      WEBHOOK_TOKEN: ${WEBHOOK_TOKEN:?Set WEBHOOK_TOKEN in .env.secrets}
+      DATA_COLLECT_HOST: "0.0.0.0"
+      DATA_COLLECT_PORT: "8787"
+      DATA_COLLECT_DATA_DIR: /data
+      DATA_COLLECT_SCHEMA: /app/schema.yaml
+    volumes:
+      - ./data:/data
+      - ${DATA_COLLECT_SCHEMA_FILE:-./schema.yaml}:/app/schema.yaml:ro

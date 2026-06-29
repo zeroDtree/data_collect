@@ -1,0 +1,10 @@
+# Edit this file or copy from examples/registration.yaml.
+# primary_key must match a field key with required: true.
+
+primary_key: id
+
+fields:
+  id:
+    input_key: id
+    export_header: id
+    required: true

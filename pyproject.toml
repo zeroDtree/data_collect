@@ -1,0 +1,43 @@
+[project]
+name = "data-collect"
+version = "0.1.0"
+description = "Schema-driven webhook data collector with SQLite storage and CSV export"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.115.0",
+    "python-dotenv>=1.0.0",
+    "pyyaml>=6.0.0",
+    "uvicorn[standard]>=0.32.0",
+]
+
+[project.scripts]
+data-collect = "data_collect.app:main"
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.0",
+    "pytest>=8.0.0",
+    "ruff>=0.9.0",
+    "ty>=0.0.1a6",
+]
+
+[build-system]
+requires = ["hatchling>=1.18.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/data_collect"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+
+[tool.ty.src]
+include = ["src", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

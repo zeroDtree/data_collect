@@ -1,0 +1,17 @@
+services:
+  data-collect:
+    networks:
+      - traefik_net
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=${TRAEFIK_DOCKER_NETWORK:?Set TRAEFIK_DOCKER_NETWORK in .env}
+      - traefik.http.routers.data-collect.rule=Host(`${PUBLIC_HOST:?Set PUBLIC_HOST}`)
+      - traefik.http.routers.data-collect.entrypoints=websecure
+      - traefik.http.routers.data-collect.tls=true
+      - traefik.http.routers.data-collect.tls.certresolver=letsencrypt
+      - traefik.http.services.data-collect.loadbalancer.server.port=8787
+
+networks:
+  traefik_net:
+    external: true
+    name: ${TRAEFIK_DOCKER_NETWORK:?Set TRAEFIK_DOCKER_NETWORK in .env}

@@ -1,0 +1,30 @@
+primary_key: email
+
+fields:
+  email:
+    input_key: email
+    export_header: 邮箱
+    required: true
+    normalize: lowercase
+    validate: email
+
+  linux_username:
+    input_key: linux_username
+    export_header: linux账户名
+    required: true
+    unique: true
+    immutable_on_update: true
+    validate: linux_username
+
+  name:
+    input_key: name
+    export_header: 真实姓名
+    required: true
+
+  student_id:
+    input_key: student_id
+    export_header: 学号
+
+  cohort:
+    input_key: cohort
+    export_header: 年级
